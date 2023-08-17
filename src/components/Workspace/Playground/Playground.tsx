@@ -5,6 +5,7 @@ import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { javascript } from '@codemirror/lang-javascript';
 
 import PreferenceNav from './PreferenceNav/PreferenceNav';
+import EditorFooter from './EditorFooter';
 
 type PlaygroundProps = {};
 
@@ -58,6 +59,7 @@ const Playground:React.FC<PlaygroundProps> = () => {
 					</div>
                 </div>
             </Split>
+            <EditorFooter />
         </div>
     )
 }
