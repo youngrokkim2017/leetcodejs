@@ -1,5 +1,5 @@
 import { auth, firestore } from '@/firebase/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, runTransaction } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { AiFillLike, AiFillDislike, AiOutlineLoading3Quarters, AiFillStar } from "react-icons/ai";
 import { BsCheck2Circle } from "react-icons/bs";
@@ -21,6 +21,14 @@ const ProblemDescription:React.FC<ProblemDescriptionProps> = ({ problem }) => {
 	const { liked, disliked, solved, setData, starred } = useGetUsersDataOnProblem(problem.id)
 	const [updating, setUpdating] = useState(false)
 
+	const returnUserDataAndProblemData = async (transaction: any) => {
+		const userRef = doc(firestore, "users", user!.uid)
+		const problemRef = doc(firestore, "problems", problem.id)
+		const userDoc = await transaction.get(userRef)
+		const problemDoc = await transaction.get(problemRef)
+		return { userDoc, problemDoc, userRef, problemRef }
+	}
+
 	const handleLike = async () => {
 		if (!user) {
 			toast.error("You must be logged in to like a problem", { position: "top-left", theme: "dark" })
@@ -33,10 +41,7 @@ const ProblemDescription:React.FC<ProblemDescriptionProps> = ({ problem }) => {
 
 		// if already liked, if already disliked, neither
 		await runTransaction(firestore, async (transaction) => {
-			const userRef = doc(firestore, "users", user.uid)
-			const problemRef = doc(firestore, "problems", problem.id)
-			const userDoc = await transaction.get(userRef)
-			const problemDoc = await transaction.get(problemRef)
+			const { problemDoc, userDoc, problemRef, userRef } = await returnUserDataAndProblemData(transaction)
 
 			if (userDoc.exist() && problemDoc.exists()) {
 				if (liked) {
@@ -73,6 +78,57 @@ const ProblemDescription:React.FC<ProblemDescriptionProps> = ({ problem }) => {
 					setCurrentProblem((prev) => (prev ? { ...prev, likes: prev.likes + 1 } : null));
 					setData((prev) => ({ ...prev, liked: true }));
 				} 
+			}
+		})
+		setUpdating(false)
+	}
+
+	const handleDislike = async () => {
+		if (!user) {
+			toast.error("You must be logged in to dislike a problem", { position: "top-left", theme: "dark" })
+			return
+		}
+
+		if (updating) return
+
+		setUpdating(true)
+
+		await runTransaction(firestore, async (transaction) => {
+			const { problemDoc, userDoc, problemRef, userRef } = await returnUserDataAndProblemData(transaction)
+			if (userDoc.exists() && problemDoc.exists()) {
+				// already disliked, already liked, not disliked or liked
+				if (disliked) {
+					transaction.update(userRef, {
+						dislikedProblems: userDoc.data().dislikedProblems.filter((id: string) => id !== problem.id),
+					})
+					transaction.update(problemRef, {
+						dislikes: problemDoc.data().dislikes - 1,
+					})
+					setCurrentProblem((prev) => (prev ? { ...prev, dislikes: prev.dislikes - 1 } : null))
+					setData((prev) => ({ ...prev, disliked: false }))
+				} else if (liked) {
+					transaction.update(userRef, {
+						dislikedProblems: [...userDoc.data().dislikedProblems, problem.id],
+						likedProblems: userDoc.data().likedProblems.filter((id: string) => id !== problem.id),
+					})
+					transaction.update(problemRef, {
+						dislikes: problemDoc.data().dislikes + 1,
+						likes: problemDoc.data().likes - 1,
+					})
+					setCurrentProblem((prev) =>
+						prev ? { ...prev, dislikes: prev.dislikes + 1, likes: prev.likes - 1 } : null
+					)
+					setData((prev) => ({ ...prev, disliked: true, liked: false }))
+				} else {
+					transaction.update(userRef, {
+						dislikedProblems: [...userDoc.data().dislikedProblems, problem.id],
+					})
+					transaction.update(problemRef, {
+						dislikes: problemDoc.data().dislikes + 1,
+					})
+					setCurrentProblem((prev) => (prev ? { ...prev, dislikes: prev.dislikes + 1 } : null))
+					setData((prev) => ({ ...prev, disliked: true }))
+				}
 			}
 		})
 		setUpdating(false)
@@ -135,6 +191,7 @@ const ProblemDescription:React.FC<ProblemDescriptionProps> = ({ problem }) => {
 								</div>
 								<div
 									className='flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-green-s text-dark-gray-6'
+									onClick={handleDislike}
 								>
 									{disliked && !updating && <AiFillDislike className='text-dark-blue-s' />}
 									{!disliked && !updating && <AiFillDislike />}
