@@ -4,6 +4,8 @@ import Topbar from "@/components/Topbar/Topbar";
 // import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 
+import useHasMounted from "@/hooks/useHasMounted";
+
 const LoadingSkeleton = () => {
 	return (
 		<div className='flex items-center space-x-12 mt-4 px-6'>
@@ -18,6 +20,9 @@ const LoadingSkeleton = () => {
 
 export default function Home() {
   const [loadingProblems, setLoadingProblems] = useState(true)
+  const hasMounted = useHasMounted
+
+  if (!hasMounted) return null
 
   // const [inputs, setInputs] = useState({
   //   id: '',
