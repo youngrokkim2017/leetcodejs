@@ -205,7 +205,7 @@ const ProblemDescription:React.FC<ProblemDescriptionProps> = ({ problem }) => {
 								</div>
 								{/* <div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-s text-dark-green-s'>
 									<BsCheck2Circle />
-								</div> */}
+								</div> */} 
 								{(solved) && (
 									<div className='rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-s text-dark-green-s'>
 										<BsCheck2Circle />
