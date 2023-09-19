@@ -1,17 +1,25 @@
 import { BsCheckLg, BsChevronDown } from "react-icons/bs";
 import { IoClose } from "react-icons/io5";
 
+import { ISettings } from "../Workspace/Playground/Playground";
+
 const EDITOR_FONT_SIZES = ["12px", "13px", "14px", "15px", "16px", "17px", "18px"];
 
-const SettingsModal: React.FC = () => {
-	const dropdownIsOpen = true;
-    
+interface SettingsModalProps {
+	settings: ISettings;
+	setSettings: React.Dispatch<React.SetStateAction<ISettings>>;
+}
+
+const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSettings }) => {
 	return (
 		<div className='text-white z-40'>
 			<div aria-modal='true' role='dialog' className='fixed inset-0 overflow-y-auto z-modal'>
 				<div className='flex min-h-screen items-center justify-center px-4'>
 					{/* overlay */}
-					<div className='opacity-100' onClick={() => {}}>
+					<div 
+                        className='opacity-100' 
+                        onClick={() => setSettings({ ...settings, settingsModalIsOpen: false })}
+                    >
 						<div className='fixed inset-0 bg-gray-8 opacity-60'></div>
 					</div>
 
@@ -43,7 +51,7 @@ const SettingsModal: React.FC = () => {
 											<BsChevronDown />
 										</button>
 										{/* Show dropdown for fontsizes */}
-										{dropdownIsOpen && (
+										{settings.dropdownIsOpen && (
 											<ul
 												className='absolute mt-1 max-h-56 overflow-auto rounded-lg p-2 z-50 focus:outline-none shadow-lg   w-full bg-dark-layer-1'
 												style={{
