@@ -14,6 +14,8 @@ import { problems } from "@/utils/problems";
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 
+import useLocalStorage from '@/hooks/useLocalStorage';
+
 type PlaygroundProps = {
     problem: Problem
     setSuccess: React.Dispatch<React.SetStateAction<boolean>>
@@ -32,8 +34,9 @@ const Playground:React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }
     const [user] = useAuthState(auth)
     const { query: { pid } } = useRouter()
 
+	const [fontSize, setFontSize] = useLocalStorage("lcc-fontSize", "16px")
 	const [settings, setSettings] = useState<ISettings>({
-		fontSize: '16px',
+		fontSize: fontSize,
 		settingsModalIsOpen: false,
 		dropdownIsOpen: false,
 	})
