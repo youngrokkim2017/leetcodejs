@@ -11,6 +11,11 @@ interface SettingsModalProps {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSettings }) => {
+    const handleClickDropdown = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		e.stopPropagation()
+		setSettings({ ...settings, dropdownIsOpen: !settings.dropdownIsOpen })
+	}
+
 	return (
 		<div className='text-white z-40'>
 			<div aria-modal='true' role='dialog' className='fixed inset-0 overflow-y-auto z-modal'>
@@ -43,7 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSettings }) 
 								<div className='w-[170px]'>
 									<div className='relative'>
 										<button
-											onClick={() => {}}
+											onClick={handleClickDropdown}
 											className='flex cursor-pointer items-center rounded px-3 py-1.5 text-left focus:outline-none whitespace-nowrap bg bg-dark-fill-3 hover:bg-dark-fill-2 active:bg-dark-fill-3 w-full justify-between'
 											type='button'
 										>
