@@ -32,7 +32,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ settings, setSettings }) 
 						{/* setting header */}
 						<div className='flex items-center border-b px-5 py-4 text-lg font-medium  border-dark-divider-border-2'>
 							Settings
-							<button className='ml-auto cursor-pointer rounded transition-all' onClick={() => {}}>
+							<button 
+                                className='ml-auto cursor-pointer rounded transition-all' 
+                                onClick={() => setSettings({ ...settings, settingsModalIsOpen: false })}
+                            >
 								<IoClose />
 							</button>
 						</div>
